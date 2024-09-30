@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate Extractor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #uploadForm {
+            margin-bottom: 20px;
+        }
+        #uploadForm input[type="file"] {
+            margin-right: 10px;
+        }
+        #results {
+            margin-top: 20px;
+        }
+        .result-item {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form id="uploadForm">
+            <input type="file" name="pdfFiles" multiple accept=".pdf" />
+            <button type="submit">Extract Text</button>
+        </form>
+        <div id="results"></div>
+        <button id="fetchResultsBtn">Fetch All Results</button>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const response = await fetch('http://localhost:3000/extract-text', {
+                method: 'POST',
+                body: formData
+            });
+            const results = await response.json();
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = ''; // Clear previous results
+            results.forEach((result) => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                resultItem.innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+                resultsContainer.appendChild(resultItem);
+            });
+        });
+
+        // Fetch all results
+        document.getElementById('fetchResultsBtn').addEventListener('click', async function() {
+            const response = await fetch('http://localhost:3000/results');
+            const results = await response.json();
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = ''; // Clear previous results
+            results.forEach((result) => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                resultItem.innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+                resultsContainer.appendChild(resultItem);
+            });
+        });
+    </script>
+</body>
+</html>
